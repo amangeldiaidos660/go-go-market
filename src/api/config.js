@@ -7,8 +7,16 @@ export const API_CONFIG = {
 };
 
 export const API_ENDPOINTS = {
-  LOGIN: '/',
+  LOGIN: '/go/login',
   LOGOUT: '/logout',
+  USERS_LIST: '/go/users/list',
+  USERS_CREATE: '/go/users',
+  USERS_EDIT: '/go/users/edit',
+  USERS_DELETE: '/go/users/delete',
+  ACCOUNTS_GET: '/go/accounts',
+  ACCOUNTS_CREATE: '/go/accounts',
+  ACCOUNTS_EDIT: '/go/accounts/edit',
+  ACCOUNTS_DELETE: '/go/accounts/delete',
 };
 
 export const HTTP_STATUS = {

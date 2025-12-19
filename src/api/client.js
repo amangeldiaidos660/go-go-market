@@ -5,16 +5,37 @@ class ApiClient {
     this.baseURL = API_CONFIG.BASE_URL;
     this.timeout = API_CONFIG.TIMEOUT;
     this.defaultHeaders = API_CONFIG.HEADERS;
+    this.sessionId = null;
+  }
+
+  setSessionId(sessionId) {
+    this.sessionId = sessionId;
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('sessionId', sessionId);
+    }
+  }
+
+  getSessionId() {
+    return this.sessionId;
+  }
+
+  clearSessionId() {
+    this.sessionId = null;
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('sessionId');
+    }
   }
 
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
+    const headers = {
+      ...this.defaultHeaders,
+      ...options.headers,
+    };
+
     const config = {
       ...options,
-      headers: {
-        ...this.defaultHeaders,
-        ...options.headers,
-      },
+      headers,
     };
 
     const controller = new AbortController();
@@ -83,10 +104,17 @@ class ApiClient {
   }
 
   async post(endpoint, data = {}, options = {}) {
+    const body = typeof data === 'string' ? data : JSON.stringify(data);
+    const headers = typeof data === 'string' ? options.headers : {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+
     return this.request(endpoint, {
       ...options,
       method: 'POST',
-      body: data,
+      body,
+      headers,
     });
   }
 

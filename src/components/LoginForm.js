@@ -17,7 +17,6 @@ const LoginForm = ({ onLoginSuccess }) => {
       ...prev,
       [field]: value
     }));
-    // Очистка ошибки при вводе
     if (errors[field]) {
       setErrors(prev => ({
         ...prev,
@@ -35,8 +34,6 @@ const LoginForm = ({ onLoginSuccess }) => {
 
     if (!formData.password) {
       newErrors.password = 'Введите пароль';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Пароль должен содержать минимум 6 символов';
     }
 
     setErrors(newErrors);
@@ -53,15 +50,16 @@ const LoginForm = ({ onLoginSuccess }) => {
     try {
       const response = await authApi.login(formData.login, formData.password);
       
-      if (response.authenticated) {
+      if (response.success && response.authenticated) {
         console.log('Вход выполнен успешно');
-        onLoginSuccess();
+        onLoginSuccess(response.user);
+      } else {
+        setErrors({ general: response.error || 'Ошибка входа' });
       }
       
     } catch (error) {
       console.error('Login error:', error);
       
-      // Обработка различных ошибок
       let errorMessage = 'Ошибка входа. Попробуйте снова.';
       
       if (error.status === 422) {
@@ -90,7 +88,6 @@ const LoginForm = ({ onLoginSuccess }) => {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.innerContainer}>
-          {/* Логотип и заголовок */}
           <View style={styles.headerContainer}>
             <View style={styles.logo}>
               <Text style={styles.logoText}>G</Text>
@@ -99,17 +96,14 @@ const LoginForm = ({ onLoginSuccess }) => {
             <Text style={styles.subtitle}>Войдите в свой аккаунт</Text>
           </View>
 
-          {/* Форма */}
           <View style={styles.formContainer}>
             <View style={styles.card}>
-              {/* Общая ошибка */}
               {errors.general && (
                 <View style={styles.errorBanner}>
                   <Text style={styles.errorBannerText}>{errors.general}</Text>
                 </View>
               )}
 
-              {/* Поле логина */}
               <View style={styles.formGroup}>
                 <Text style={styles.label}>Логин</Text>
                 <TextInput
@@ -127,7 +121,6 @@ const LoginForm = ({ onLoginSuccess }) => {
                 )}
               </View>
 
-              {/* Поле пароля */}
               <View style={styles.formGroup}>
                 <Text style={styles.label}>Пароль</Text>
                 <View style={styles.passwordContainer}>
@@ -159,14 +152,12 @@ const LoginForm = ({ onLoginSuccess }) => {
                 )}
               </View>
 
-              {/* Забыли пароль */}
               <View style={styles.forgotPasswordContainer}>
                 <TouchableOpacity disabled={loading}>
                   <Text style={styles.forgotPasswordText}>Забыли пароль?</Text>
                 </TouchableOpacity>
               </View>
 
-              {/* Кнопка входа */}
               <TouchableOpacity
                 style={[styles.button, loading && styles.buttonDisabled]}
                 onPress={handleSubmit}
@@ -182,15 +173,6 @@ const LoginForm = ({ onLoginSuccess }) => {
                   <Text style={styles.buttonText}>Войти</Text>
                 )}
               </TouchableOpacity>
-
-              {/* Регистрация - временно скрыто */}
-              {/* <View style={styles.divider} />
-              <View style={styles.registerContainer}>
-                <Text style={styles.registerText}>Нет аккаунта? </Text>
-                <TouchableOpacity disabled={loading}>
-                  <Text style={styles.registerLink}>Зарегистрироваться</Text>
-                </TouchableOpacity>
-              </View> */}
             </View>
           </View>
         </View>

@@ -4,44 +4,53 @@ import { API_ENDPOINTS } from './config';
 export const authApi = {
   login: async (username, password) => {
     try {
-      const formData = new URLSearchParams();
-      formData.append('username', username);
-      formData.append('password', password);
-
       const response = await apiClient.post(
         API_ENDPOINTS.LOGIN,
-        formData.toString(),
         {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
+          login: username,
+          password: password,
         }
       );
 
-      if (response.success && response.status === 200) {
-        console.log('Авторизация успешна, сессия установлена');
+      if (response.success && response.data?.success) {
+        const sessionId = response.data.session_id;
+        apiClient.setSessionId(sessionId);
+        
+        console.log('Авторизация успешна, session_id:', sessionId);
+        
         return {
           success: true,
           authenticated: true,
+          sessionId: sessionId,
+          user: response.data.user,
         };
       }
 
-      return response;
+      return {
+        success: false,
+        error: response.data?.error || 'Ошибка авторизации',
+      };
     } catch (error) {
       console.error('Login error:', error);
-      throw error;
+      return {
+        success: false,
+        error: error.error || 'Ошибка сети',
+      };
     }
   },
 
   logout: async () => {
     try {
       const response = await apiClient.get(API_ENDPOINTS.LOGOUT);
-
-    //   console.log('Выход выполнен успешно');
+      
+      apiClient.clearSessionId();
+      
+      console.log('Выход выполнен успешно');
 
       return response;
     } catch (error) {
       console.error('Logout error:', error);
+      apiClient.clearSessionId();
       throw error;
     }
   },

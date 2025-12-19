@@ -2,18 +2,24 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const SideNav = ({ activeSection, onSelectSection, onLogout }) => {
+const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
 
-  const menuItems = [
-    { id: 'users', label: 'Пользователи', icon: 'people' },
-    { id: 'transactions', label: 'Транзакции', icon: 'card' },
-    { id: 'statistics', label: 'Статистика', icon: 'stats-chart' },
-    { id: 'devices', label: 'Ваши устройства', icon: 'phone-portrait' },
+  const allMenuItems = [
+    { id: 'users', label: 'Пользователи', icon: 'people', roleRequired: 1 },
+    { id: 'profile', label: 'Профиль', icon: 'person-circle', roleRequired: null },
+    { id: 'transactions', label: 'Транзакции', icon: 'card', roleRequired: null },
+    { id: 'statistics', label: 'Статистика', icon: 'stats-chart', roleRequired: null },
+    { id: 'devices', label: 'Ваши устройства', icon: 'phone-portrait', roleRequired: null },
   ];
+
+  const menuItems = allMenuItems.filter(item => {
+    if (item.roleRequired === null) return true;
+    return userData?.idrole === item.roleRequired;
+  });
 
   const handleLogout = async () => {
     setIsLoggingOut(true);

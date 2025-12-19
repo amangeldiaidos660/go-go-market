@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, useWindowDimensions, ScrollView } from 'react-native';
 import SideNav from '../components/SideNav';
+import UsersScreen from './UsersScreen';
+import ProfileScreen from './ProfileScreen';
 
-const HomeScreen = ({ onLogout }) => {
-  const [activeSection, setActiveSection] = useState('users');
+const HomeScreen = ({ onLogout, userData }) => {
+  const [activeSection, setActiveSection] = useState(userData?.idrole === 1 ? 'users' : 'profile');
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
 
   const renderContent = () => {
     switch (activeSection) {
       case 'users':
-        return (
-          <View style={styles.content}>
-            <Text style={styles.title}>Пользователи</Text>
-            <Text style={styles.subtitle}>Список пользователей будет здесь</Text>
-          </View>
-        );
+        return <UsersScreen userData={userData} />;
+      case 'profile':
+        return <ProfileScreen userData={userData} />;
       case 'transactions':
         return (
           <View style={styles.content}>
@@ -49,6 +48,7 @@ const HomeScreen = ({ onLogout }) => {
           activeSection={activeSection}
           onSelectSection={setActiveSection}
           onLogout={onLogout}
+          userData={userData}
         />
       )}
       
@@ -58,6 +58,7 @@ const HomeScreen = ({ onLogout }) => {
             activeSection={activeSection}
             onSelectSection={setActiveSection}
             onLogout={onLogout}
+            userData={userData}
           />
         )}
         <ScrollView style={styles.mainContent}>
