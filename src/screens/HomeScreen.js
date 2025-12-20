@@ -32,8 +32,8 @@ const HomeScreen = ({ onLogout, userData }) => {
       case 'devices':
         return (
           <View style={styles.content}>
-            <Text style={styles.title}>Ваши устройства</Text>
-            <Text style={styles.subtitle}>Список устройств будет здесь</Text>
+            <Text style={styles.title}>Девайсы</Text>
+            <Text style={styles.subtitle}>Управление устройствами будет здесь</Text>
           </View>
         );
       default:

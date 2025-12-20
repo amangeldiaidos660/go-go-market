@@ -17,6 +17,16 @@ export const API_ENDPOINTS = {
   ACCOUNTS_CREATE: '/go/accounts',
   ACCOUNTS_EDIT: '/go/accounts/edit',
   ACCOUNTS_DELETE: '/go/accounts/delete',
+  DEVICES_GET: '/go/devices',
+  DEVICES_ADD: '/go/devices/add',
+  DEVICES_EDIT: '/go/devices/edit',
+  DEVICES_DELETE: '/go/devices/delete',
+  DEVICES_MACHID_GENERATE: '/go/machid/generate',
+  PRICES_GET: '/go/prices',
+  PRICES_ADD: '/go/prices',
+  PRICES_EDIT: '/go/prices/edit',
+  PRICES_DELETE: '/go/prices/delete',
+  CATEGORIES_GET: '/go/categories',
 };
 
 export const HTTP_STATUS = {

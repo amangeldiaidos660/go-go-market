@@ -13,7 +13,7 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
     { id: 'profile', label: 'Профиль', icon: 'person-circle', roleRequired: null },
     { id: 'transactions', label: 'Транзакции', icon: 'card', roleRequired: null },
     { id: 'statistics', label: 'Статистика', icon: 'stats-chart', roleRequired: null },
-    { id: 'devices', label: 'Ваши устройства', icon: 'phone-portrait', roleRequired: null },
+    { id: 'devices', label: 'Девайсы', icon: 'phone-portrait', roleRequired: null },
   ];
 
   const menuItems = allMenuItems.filter(item => {
