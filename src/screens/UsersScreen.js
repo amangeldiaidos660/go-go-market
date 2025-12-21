@@ -5,10 +5,12 @@ import { usersApi } from '../api/users';
 import { accountsApi } from '../api/accounts';
 import UserModal from '../components/UserModal';
 import ConfirmModal from '../components/ConfirmModal';
+import SearchBar from '../components/SearchBar';
 import AccountModal from '../components/AccountModal';
 
 const UsersScreen = ({ userData }) => {
   const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
@@ -37,10 +39,12 @@ const UsersScreen = ({ userData }) => {
     setError(null);
     
     try {
-      const response = await usersApi.getList({ search });
+      const response = await usersApi.getList({ search: null, limit: 1000 });
       
       if (response.success) {
-        setUsers(response.data.rows || []);
+        const loadedUsers = response.data.rows || [];
+        setAllUsers(loadedUsers);
+        setUsers(loadedUsers);
         setTotal(response.data.total || 0);
       } else {
         setError(response.error || 'Ошибка загрузки пользователей');
@@ -57,8 +61,26 @@ const UsersScreen = ({ userData }) => {
     loadUsers();
   }, []);
 
+  useEffect(() => {
+    handleSearch();
+  }, [search]);
+
   const handleSearch = () => {
-    loadUsers();
+    if (!search.trim()) {
+      setUsers(allUsers);
+      return;
+    }
+
+    const searchLower = search.toLowerCase();
+    const filtered = allUsers.filter(user => {
+      return (
+        user.name?.toLowerCase().includes(searchLower) ||
+        user.login?.toLowerCase().includes(searchLower) ||
+        user.email?.toLowerCase().includes(searchLower)
+      );
+    });
+    
+    setUsers(filtered);
   };
 
   const canModifyUser = (user) => {
@@ -273,28 +295,15 @@ const UsersScreen = ({ userData }) => {
 
   return (
     <View className="flex-1 bg-gray-100">
-      <View className="flex-row p-4 bg-white gap-2.5">
-        <View className="flex-1 flex-row items-center bg-gray-100 rounded-lg px-3 gap-2">
-          <Ionicons name="search" size={20} color="#666" />
-          <TextInput
-            className="flex-1 h-11 text-base text-gray-800"
-            placeholder="Поиск по имени, логину или email..."
-            value={search}
-            onChangeText={setSearch}
-            onSubmitEditing={handleSearch}
-          />
-        </View>
-        <TouchableOpacity className="bg-primary px-5 py-3 rounded-lg justify-center" onPress={handleSearch}>
-          <Text className="text-white text-base font-semibold">Найти</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          className="bg-blue-500 px-5 py-3 rounded-lg justify-center"
-          onPress={() => setModalVisible(true)}
-        >
-          <Text className="text-white text-base font-semibold">Добавить</Text>
-        </TouchableOpacity>
-      </View>
-
+      <SearchBar
+        placeholder="Поиск по имени, логину или email..."
+        value={search}
+        onChangeText={setSearch}
+        onSearch={handleSearch}
+        onAdd={() => setModalVisible(true)}
+        addButtonText="Добавить пользователя"
+        showAddButton={true}
+      />
       {error && (
         <View className="flex-row items-center p-4 m-4 bg-white rounded-lg border-l-4 border-red-500 gap-2.5">
           <Ionicons name="alert-circle" size={24} color="#ff3b30" />

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, useWindowDimensions, ScrollView } from 'react-n
 import SideNav from '../components/SideNav';
 import UsersScreen from './UsersScreen';
 import ProfileScreen from './ProfileScreen';
+import DevicesScreen from './DevicesScreen';
 
 const HomeScreen = ({ onLogout, userData }) => {
   const [activeSection, setActiveSection] = useState(userData?.idrole === 1 ? 'users' : 'profile');
@@ -30,12 +31,7 @@ const HomeScreen = ({ onLogout, userData }) => {
           </View>
         );
       case 'devices':
-        return (
-          <View style={styles.content}>
-            <Text style={styles.title}>Девайсы</Text>
-            <Text style={styles.subtitle}>Управление устройствами будет здесь</Text>
-          </View>
-        );
+        return <DevicesScreen userData={userData} />;
       default:
         return null;
     }

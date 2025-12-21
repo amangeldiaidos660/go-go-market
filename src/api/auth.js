@@ -16,8 +16,6 @@ export const authApi = {
         const sessionId = response.data.session_id;
         apiClient.setSessionId(sessionId);
         
-        console.log('Авторизация успешна, session_id:', sessionId);
-        
         return {
           success: true,
           authenticated: true,

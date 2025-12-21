@@ -51,7 +51,6 @@ const LoginForm = ({ onLoginSuccess }) => {
       const response = await authApi.login(formData.login, formData.password);
       
       if (response.success && response.authenticated) {
-        console.log('Вход выполнен успешно');
         onLoginSuccess(response.user);
       } else {
         setErrors({ general: response.error || 'Ошибка входа' });
