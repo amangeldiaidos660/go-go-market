@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 80,
     height: 80,
-    backgroundColor: '#25d366',
+    backgroundColor: '#FF6B35',
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
@@ -302,17 +302,17 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   forgotPasswordText: {
-    color: '#25d366',
+    color: '#FF6B35',
     fontSize: 14,
   },
   button: {
-    backgroundColor: '#25d366',
+    backgroundColor: '#FF6B35',
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#25d366',
+    shadowColor: '#FF6B35',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   registerLink: {
-    color: '#25d366',
+    color: '#FF6B35',
     fontSize: 14,
     fontWeight: '500',
   },

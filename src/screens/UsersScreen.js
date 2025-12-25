@@ -287,7 +287,7 @@ const UsersScreen = ({ userData }) => {
   if (loading && users.length === 0) {
     return (
       <View className="flex-1 justify-center items-center p-5">
-        <ActivityIndicator size="large" color="#25d366" />
+        <ActivityIndicator size="large" color="#FF6B35" />
         <Text className="mt-2.5 text-base text-gray-600">Загрузка пользователей...</Text>
       </View>
     );
@@ -360,7 +360,7 @@ const UsersScreen = ({ userData }) => {
                               className="p-1.5 bg-green-50 rounded"
                               onPress={() => handleOpenEditModal(user)}
                             >
-                              <Ionicons name="pencil" size={18} color="#25d366" />
+                              <Ionicons name="pencil" size={18} color="#FF6B35" />
                             </TouchableOpacity>
                             <TouchableOpacity 
                               className="p-1.5 bg-red-50 rounded"

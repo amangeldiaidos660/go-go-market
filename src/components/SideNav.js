@@ -66,7 +66,7 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
                   <Ionicons 
                     name={item.icon} 
                     size={20} 
-                    color={activeSection === item.id ? '#25d366' : '#757575'} 
+                    color={activeSection === item.id ? '#FF6B35' : '#757575'} 
                   />
                   <Text style={[
                     styles.menuText,
@@ -122,7 +122,7 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
             <Ionicons 
               name={item.icon} 
               size={20} 
-              color={activeSection === item.id ? '#25d366' : '#757575'} 
+              color={activeSection === item.id ? '#FF6B35' : '#757575'} 
             />
             <Text style={[
               styles.menuText,
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 60,
     height: 60,
-    backgroundColor: '#25d366',
+    backgroundColor: '#FF6B35',
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   menuItemActive: {
-    backgroundColor: '#e6fbf0',
+    backgroundColor: '#FFF3EF',
   },
   menuText: {
     fontSize: 16,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   menuTextActive: {
-    color: '#25d366',
+    color: '#FF6B35',
     fontWeight: '600',
   },
   footer: {
