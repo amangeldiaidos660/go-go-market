@@ -1,4 +1,4 @@
-# Go-Go Market
+# Go Market
 
 Кроссплатформенное приложение для маркетплейса, разработанное с использованием React Native, Expo и NativeWind (Tailwind CSS).
 
@@ -12,7 +12,7 @@
 ## 📦 Структура проекта
 
 ```
-gogomarket/
+gomarket/
 ├── src/
 │   ├── components/     # Переиспользуемые компоненты
 │   ├── screens/        # Экраны приложения
@@ -36,7 +36,7 @@ gogomarket/
 ### Установка зависимостей
 
 ```bash
-cd d:\Workspace\gogomarket
+cd d:\Workspace\gomarket
 npm install
 ```
 
@@ -102,7 +102,7 @@ export default function Component() {
   return (
     <View className="flex-1 bg-blue-500 items-center justify-center">
       <Text className="text-white text-2xl font-bold">
-        Привет, Go-Go Market!
+        Привет, Go Market!
       </Text>
     </View>
   );
@@ -191,4 +191,4 @@ npm install
 
 **Версия:** 1.0.0  
 **Лицензия:** Private  
-**Автор:** Go-Go Market Team
+**Автор:** Go Market Team

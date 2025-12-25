@@ -47,7 +47,7 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
           >
             <Ionicons name={isMobileMenuOpen ? "close" : "menu"} size={28} color="#212121" />
           </TouchableOpacity>
-          <Text style={styles.mobileTitle}>Go-Go Market</Text>
+          <Text style={styles.mobileTitle}>Go Market</Text>
         </View>
 
         {isMobileMenuOpen && (
@@ -105,7 +105,7 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
         <View style={styles.logo}>
           <Text style={styles.logoText}>G</Text>
         </View>
-        <Text style={styles.appName}>Go-Go Market</Text>
+        <Text style={styles.appName}>Go Market</Text>
       </View>
 
       <View style={styles.menu}>

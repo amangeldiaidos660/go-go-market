@@ -91,7 +91,7 @@ const LoginForm = ({ onLoginSuccess }) => {
             <View style={styles.logo}>
               <Text style={styles.logoText}>G</Text>
             </View>
-            <Text style={styles.title}>Go-Go Market</Text>
+            <Text style={styles.title}>Go Market</Text>
             <Text style={styles.subtitle}>Войдите в свой аккаунт</Text>
           </View>
 
