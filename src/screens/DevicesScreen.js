@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import devicesApi from '../api/devices';
 import pricesApi from '../api/prices';
 import { accountsApi } from '../api/accounts';
 import { usersApi } from '../api/users';
 import DeviceModal from '../components/DeviceModal';
-import PriceModal from '../components/PriceModal';
+import DeviceProductsModal from '../components/DeviceProductsModal';
 import ConfirmModal from '../components/ConfirmModal';
 import SearchBar from '../components/SearchBar';
 
@@ -14,6 +14,7 @@ const DevicesScreen = ({ userData }) => {
   const [users, setUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [userAccounts, setUserAccounts] = useState({});
+  const [myAccounts, setMyAccounts] = useState([]);
   const [accountDevices, setAccountDevices] = useState({});
   const [devicePrices, setDevicePrices] = useState({});
   
@@ -28,15 +29,11 @@ const DevicesScreen = ({ userData }) => {
   const [editingDevice, setEditingDevice] = useState(null);
   const [selectedAccountId, setSelectedAccountId] = useState(null);
   
-  const [showPriceModal, setShowPriceModal] = useState(false);
-  const [editingPrice, setEditingPrice] = useState(null);
+  const [showDeviceProductsModal, setShowDeviceProductsModal] = useState(false);
   const [selectedDeviceId, setSelectedDeviceId] = useState(null);
   
   const [showDeleteDeviceConfirm, setShowDeleteDeviceConfirm] = useState(false);
   const [deviceToDelete, setDeviceToDelete] = useState(null);
-  
-  const [showDeletePriceConfirm, setShowDeletePriceConfirm] = useState(false);
-  const [priceToDelete, setPriceToDelete] = useState(null);
 
   const loadUsers = async () => {
     setLoading(true);
@@ -49,13 +46,15 @@ const DevicesScreen = ({ userData }) => {
           setUsers(loadedUsers);
         }
       } else {
-        const currentUser = [{ id: userData.id, name: userData.name, email: userData.email }];
-        setAllUsers(currentUser);
-        setUsers(currentUser);
+        const response = await accountsApi.getAccounts(userData.id);
+        if (response.success) {
+          setMyAccounts(response.data || []);
+        }
       }
     } catch (e) {
       setUsers([]);
       setAllUsers([]);
+      setMyAccounts([]);
     }
     setLoading(false);
   };
@@ -208,64 +207,40 @@ const DevicesScreen = ({ userData }) => {
     setDeviceToDelete(null);
   };
 
-  const handleOpenCreatePriceModal = (deviceId) => {
+  const handleOpenAssignProductsModal = (deviceId) => {
     setSelectedDeviceId(deviceId);
-    setEditingPrice(null);
-    setShowPriceModal(true);
+    setShowDeviceProductsModal(true);
   };
 
-  const handleOpenEditPriceModal = (price, deviceId) => {
-    setSelectedDeviceId(deviceId);
-    setEditingPrice(price);
-    setShowPriceModal(true);
-  };
-
-  const handleClosePriceModal = () => {
-    setShowPriceModal(false);
-    setEditingPrice(null);
+  const handleCloseDeviceProductsModal = () => {
+    setShowDeviceProductsModal(false);
     setSelectedDeviceId(null);
   };
 
-  const handleSavePrice = async () => {
+  const handleAssignProducts = async () => {
     if (selectedDeviceId) {
       await loadDevicePrices(selectedDeviceId);
     }
-    handleClosePriceModal();
+    handleCloseDeviceProductsModal();
   };
 
-  const handleOpenDeletePriceConfirm = (price, deviceId) => {
-    setSelectedDeviceId(deviceId);
-    setPriceToDelete(price);
-    setShowDeletePriceConfirm(true);
-  };
-
-  const handleDeletePrice = async () => {
-    if (!priceToDelete || !selectedDeviceId) return;
-    try {
-      await pricesApi.delete(selectedDeviceId, priceToDelete.id);
-      await loadDevicePrices(selectedDeviceId);
-    } catch (err) {
-      alert('Ошибка при удалении тарифа');
-    }
-    setShowDeletePriceConfirm(false);
-    setPriceToDelete(null);
-    setSelectedDeviceId(null);
-  };
 
   return (
     <View className="flex-1 bg-white">
-      <SearchBar
-        placeholder="Поиск по названию организации, логину или email..."
-        value={search}
-        onChangeText={setSearch}
-        onSearch={handleSearch}
-      />
+      {userData.idrole === 1 && (
+        <SearchBar
+          placeholder="Поиск по названию организации, логину или email..."
+          value={search}
+          onChangeText={setSearch}
+          onSearch={handleSearch}
+        />
+      )}
 
       {loading ? (
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#3b82f6" />
         </View>
-      ) : (
+      ) : userData.idrole === 1 ? (
         <ScrollView className="flex-1">
           <View className="min-w-full">
             <View className="flex-row bg-gray-100 border-b-2 border-blue-500 p-3">
@@ -321,12 +296,14 @@ const DevicesScreen = ({ userData }) => {
                               </TouchableOpacity>
                               <Text className="w-32 text-gray-600">{account.bin}</Text>
                               <View className="w-40 flex-row justify-center gap-2">
-                                <TouchableOpacity
-                                  onPress={() => handleOpenCreateDeviceModal(account.id)}
-                                  className="bg-blue-500 rounded px-3 py-1.5"
-                                >
-                                  <Text className="text-white text-xs font-medium">Добавить устройство</Text>
-                                </TouchableOpacity>
+                                {userData.idrole === 1 && (
+                                  <TouchableOpacity
+                                    onPress={() => handleOpenCreateDeviceModal(account.id)}
+                                    className="bg-blue-500 rounded px-3 py-1.5"
+                                  >
+                                    <Text className="text-white text-xs font-medium">Добавить устройство</Text>
+                                  </TouchableOpacity>
+                                )}
                               </View>
                             </View>
 
@@ -365,7 +342,7 @@ const DevicesScreen = ({ userData }) => {
                                               onPress={() => handleOpenEditDeviceModal(device)}
                                               className="bg-orange-50 p-1.5 rounded"
                                             >
-                                              <Ionicons name="pencil" size={16} color="#22c55e" />
+                                              <Ionicons name="pencil" size={16} color="#FF6B35" />
                                             </TouchableOpacity>
                                             <TouchableOpacity
                                               onPress={() => handleOpenDeleteDeviceConfirm(device)}
@@ -379,44 +356,44 @@ const DevicesScreen = ({ userData }) => {
                                         {expandedDeviceId === device.id && (
                                           <View className="bg-gray-50 px-4 py-3">
                                             <View className="flex-row items-center mb-2">
-                                              <Text className="font-semibold mr-2">Тарифы</Text>
-                                              <TouchableOpacity
-                                                onPress={() => handleOpenCreatePriceModal(device.id)}
-                                                className="bg-blue-500 rounded px-2 py-1"
-                                              >
-                                                <Text className="text-white text-xs">Добавить</Text>
-                                              </TouchableOpacity>
+                                              <Text className="font-semibold mr-2">Товары</Text>
                                             </View>
 
                                             {(devicePrices[device.id] || []).length === 0 ? (
-                                              <Text className="text-gray-500 italic text-sm">Нет тарифов</Text>
+                                              <Text className="text-gray-500 italic text-sm">Нет товаров</Text>
                                             ) : (
                                               <View className="bg-white border border-gray-200 rounded overflow-hidden">
                                                 <View className="flex-row bg-gray-100 p-3 border-b border-gray-200">
                                                   <Text className="w-12 font-semibold text-center">#</Text>
                                                   <Text className="flex-1 font-semibold">Название</Text>
+                                                  <Text className="w-24 font-semibold text-center">Кол-во</Text>
                                                   <Text className="w-32 font-semibold">Цена (тг)</Text>
-                                                  <Text className="w-32 font-semibold text-center">Действия</Text>
+                                                  <Text className="w-24 font-semibold text-center">Фото</Text>
                                                 </View>
 
-                                                {(devicePrices[device.id] || []).map((price, priceIdx) => (
-                                                  <View key={price.id} className="flex-row items-center p-3 border-b border-gray-100 hover:bg-gray-50">
+                                                {(devicePrices[device.id] || []).map((product, priceIdx) => (
+                                                  <View key={product.id} className="flex-row items-center p-3 border-b border-gray-100 hover:bg-gray-50">
                                                     <Text className="w-12 text-center text-gray-600">{priceIdx + 1}</Text>
-                                                    <Text className="flex-1">{price.name}</Text>
-                                                    <Text className="w-32">{price.amount}</Text>
-                                                    <View className="w-32 flex-row justify-center gap-2">
-                                                      <TouchableOpacity
-                                                        onPress={() => handleOpenEditPriceModal(price, device.id)}
-                                                        className="bg-orange-50 p-1.5 rounded"
-                                                      >
-                                                        <Ionicons name="pencil" size={16} color="#22c55e" />
-                                                      </TouchableOpacity>
-                                                      <TouchableOpacity
-                                                        onPress={() => handleOpenDeletePriceConfirm(price, device.id)}
-                                                        className="bg-red-50 p-1.5 rounded"
-                                                      >
-                                                        <Ionicons name="trash" size={16} color="#ef4444" />
-                                                      </TouchableOpacity>
+                                                    <View className="flex-1">
+                                                      <Text className="font-medium">{product.name_ru}</Text>
+                                                      {product.category && (
+                                                        <Text className="text-xs text-gray-500 mt-1">{product.category}</Text>
+                                                      )}
+                                                    </View>
+                                                    <Text className="w-24 text-center text-gray-700 font-medium">{product.quantity} шт</Text>
+                                                    <Text className="w-32">{product.selling_price} ₸</Text>
+                                                    <View className="w-24 items-center">
+                                                      {product.image_url ? (
+                                                        <Image
+                                                          source={{ uri: product.image_url }}
+                                                          className="w-16 h-16 rounded-lg"
+                                                          resizeMode="cover"
+                                                        />
+                                                      ) : (
+                                                        <View className="w-16 h-16 bg-gray-100 rounded-lg items-center justify-center">
+                                                          <Ionicons name="image-outline" size={24} color="#9ca3af" />
+                                                        </View>
+                                                      )}
                                                     </View>
                                                   </View>
                                                 ))}
@@ -439,48 +416,172 @@ const DevicesScreen = ({ userData }) => {
             ))}
           </View>
         </ScrollView>
+      ) : (
+        <ScrollView className="flex-1">
+          <View className="p-4">
+            <Text className="text-xl font-bold mb-4">Мои счета</Text>
+            
+            {myAccounts.length === 0 ? (
+              <Text className="text-gray-500 italic">Нет счетов</Text>
+            ) : (
+              <View className="bg-white border border-gray-200 rounded-lg">
+                <View className="flex-row bg-gray-100 p-3 border-b border-gray-200">
+                  <Text className="w-12 font-semibold text-center">#</Text>
+                  <Text className="flex-1 font-semibold">Название</Text>
+                  <Text className="w-32 font-semibold">БИН</Text>
+                </View>
+
+                {myAccounts.map((account, accIdx) => (
+                  <View key={account.id}>
+                    <View className="flex-row items-center p-3 border-b border-gray-200">
+                      <Text className="w-12 text-center text-gray-600">{accIdx + 1}</Text>
+                      <TouchableOpacity
+                        onPress={() => toggleAccountExpand(account.id)}
+                        className="flex-1 flex-row items-center"
+                      >
+                        <Ionicons
+                          name={expandedAccountId === account.id ? 'chevron-down' : 'chevron-forward'}
+                          size={18}
+                          color="#6b7280"
+                        />
+                        <Text className="ml-2">{account.name}</Text>
+                      </TouchableOpacity>
+                      <Text className="w-32 text-gray-600">{account.bin}</Text>
+                    </View>
+
+                    {expandedAccountId === account.id && (
+                      <View className="bg-gray-50 px-6 py-3">
+                        <Text className="font-semibold mb-2">Устройства</Text>
+                        {(accountDevices[account.id] || []).length === 0 ? (
+                          <Text className="text-gray-500 italic">Нет устройств</Text>
+                        ) : (
+                          <View className="bg-white border border-gray-200 rounded-lg">
+                            <View className="flex-row bg-gray-100 p-2 border-b border-gray-200">
+                              <Text className="w-10 font-semibold text-center">#</Text>
+                              <Text className="flex-1 font-semibold">Название</Text>
+                              <Text className="w-32 font-semibold">MachID</Text>
+                            </View>
+
+                            {(accountDevices[account.id] || []).map((device, devIdx) => (
+                              <View key={device.id}>
+                                <View className="flex-row items-center p-2 border-b border-gray-200">
+                                  <Text className="w-10 text-center text-gray-600">{devIdx + 1}</Text>
+                                  <TouchableOpacity
+                                    onPress={() => toggleDeviceExpand(device.id)}
+                                    className="flex-1 flex-row items-center"
+                                  >
+                                    <Ionicons
+                                      name={expandedDeviceId === device.id ? 'chevron-down' : 'chevron-forward'}
+                                      size={16}
+                                      color="#6b7280"
+                                    />
+                                    <Text className="ml-2">{device.name}</Text>
+                                  </TouchableOpacity>
+                                  <Text className="w-32 text-gray-600 text-sm">{device.machid}</Text>
+                                </View>
+
+                                {expandedDeviceId === device.id && (
+                                  <View className="bg-gray-50 px-4 py-3">
+                                    <View className="flex-row items-center mb-2">
+                                      <Text className="font-semibold mr-2">Товары</Text>
+                                      {userData.idrole === 2 && (
+                                        <TouchableOpacity
+                                          onPress={() => handleOpenAssignProductsModal(device.id)}
+                                          className="bg-blue-500 rounded px-2 py-1"
+                                        >
+                                          <Text className="text-white text-xs">Распределить</Text>
+                                        </TouchableOpacity>
+                                      )}
+                                    </View>
+
+                                    {(devicePrices[device.id] || []).length === 0 ? (
+                                      <Text className="text-gray-500 italic text-sm">Нет товаров</Text>
+                                    ) : (
+                                      <View className="bg-white border border-gray-200 rounded overflow-hidden">
+                                        <View className="flex-row bg-gray-100 p-3 border-b border-gray-200">
+                                          <Text className="w-12 font-semibold text-center">#</Text>
+                                          <Text className="flex-1 font-semibold">Название</Text>
+                                          <Text className="w-24 font-semibold text-center">Кол-во</Text>
+                                          <Text className="w-32 font-semibold">Цена (тг)</Text>
+                                          <Text className="w-24 font-semibold text-center">Фото</Text>
+                                        </View>
+
+                                        {(devicePrices[device.id] || []).map((product, priceIdx) => (
+                                          <View key={product.id} className="flex-row items-center p-3 border-b border-gray-100">
+                                            <Text className="w-12 text-center text-gray-600">{priceIdx + 1}</Text>
+                                            <View className="flex-1">
+                                              <Text className="font-medium">{product.name_ru}</Text>
+                                              {product.category && (
+                                                <Text className="text-xs text-gray-500 mt-1">{product.category}</Text>
+                                              )}
+                                            </View>
+                                            <Text className="w-24 text-center text-gray-700 font-medium">{product.quantity} шт</Text>
+                                            <Text className="w-32">{product.selling_price} ₸</Text>
+                                            <View className="w-24 items-center">
+                                              {product.image_url ? (
+                                                <Image
+                                                  source={{ uri: product.image_url }}
+                                                  className="w-16 h-16 rounded-lg"
+                                                  resizeMode="cover"
+                                                />
+                                              ) : (
+                                                <View className="w-16 h-16 bg-gray-100 rounded-lg items-center justify-center">
+                                                  <Ionicons name="image-outline" size={24} color="#9ca3af" />
+                                                </View>
+                                              )}
+                                            </View>
+                                          </View>
+                                        ))}
+                                      </View>
+                                    )}
+                                  </View>
+                                )}
+                              </View>
+                            ))}
+                          </View>
+                        )}
+                      </View>
+                    )}
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        </ScrollView>
       )}
 
-      <DeviceModal
-        visible={showDeviceModal}
-        onClose={handleCloseDeviceModal}
-        onSave={handleSaveDevice}
-        device={editingDevice}
-        mode={editingDevice ? 'edit' : 'create'}
-        accountId={selectedAccountId}
-      />
+      {userData.idrole === 1 && (
+        <DeviceModal
+          visible={showDeviceModal}
+          onClose={handleCloseDeviceModal}
+          onSave={handleSaveDevice}
+          device={editingDevice}
+          mode={editingDevice ? 'edit' : 'create'}
+          accountId={selectedAccountId}
+        />
+      )}
 
-      <PriceModal
-        visible={showPriceModal}
-        onClose={handleClosePriceModal}
-        onSave={handleSavePrice}
-        price={editingPrice}
-        mode={editingPrice ? 'edit' : 'create'}
-        deviceId={selectedDeviceId}
-      />
+      {userData.idrole === 1 && (
+        <ConfirmModal
+          visible={showDeleteDeviceConfirm}
+          title="Удалить устройство?"
+          message={`Вы уверены, что хотите удалить устройство "${deviceToDelete?.name}"?`}
+          onConfirm={handleDeleteDevice}
+          onCancel={() => {
+            setShowDeleteDeviceConfirm(false);
+            setDeviceToDelete(null);
+          }}
+        />
+      )}
 
-      <ConfirmModal
-        visible={showDeleteDeviceConfirm}
-        title="Удалить устройство?"
-        message={`Вы уверены, что хотите удалить устройство "${deviceToDelete?.name}"?`}
-        onConfirm={handleDeleteDevice}
-        onCancel={() => {
-          setShowDeleteDeviceConfirm(false);
-          setDeviceToDelete(null);
-        }}
-      />
-
-      <ConfirmModal
-        visible={showDeletePriceConfirm}
-        title="Удалить тариф?"
-        message={`Вы уверены, что хотите удалить тариф "${priceToDelete?.name}"?`}
-        onConfirm={handleDeletePrice}
-        onCancel={() => {
-          setShowDeletePriceConfirm(false);
-          setPriceToDelete(null);
-          setSelectedDeviceId(null);
-        }}
-      />
+      {userData.idrole === 2 && (
+        <DeviceProductsModal
+          visible={showDeviceProductsModal}
+          onClose={handleCloseDeviceProductsModal}
+          onSave={handleAssignProducts}
+          deviceId={selectedDeviceId}
+        />
+      )}
     </View>
   );
 };

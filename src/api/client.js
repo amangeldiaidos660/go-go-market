@@ -132,6 +132,71 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  async upload(endpoint, formData, options = {}) {
+    const url = `${this.baseURL}${endpoint}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal,
+        ...options,
+      });
+      
+      clearTimeout(timeoutId);
+
+      const contentType = response.headers.get('content-type');
+      let data;
+
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        data = await response.text();
+      }
+
+      if (!response.ok) {
+        throw {
+          status: response.status,
+          statusText: response.statusText,
+          data,
+        };
+      }
+
+      return {
+        success: true,
+        data,
+        status: response.status,
+      };
+    } catch (error) {
+      clearTimeout(timeoutId);
+
+      if (error.name === 'AbortError') {
+        throw {
+          success: false,
+          error: 'Время ожидания истекло',
+          code: 'TIMEOUT',
+        };
+      }
+
+      if (error.status) {
+        throw {
+          success: false,
+          error: error.data?.error || error.data?.detail || error.statusText,
+          status: error.status,
+          data: error.data,
+        };
+      }
+
+      throw {
+        success: false,
+        error: error.message || 'Ошибка сети. Проверьте подключение к интернету.',
+        code: 'NETWORK_ERROR',
+      };
+    }
+  }
 }
 
 export default new ApiClient();

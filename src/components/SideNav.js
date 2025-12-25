@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../context/ThemeContext';
 
 const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
-  const { currentTheme, theme, switchTheme } = useTheme();
+  const primaryColor = '#FF6B35';
+  const backgroundColor = '#FFF3EF';
 
   const allMenuItems = [
     { id: 'users', label: 'Пользователи', icon: 'people', roleRequired: 1 },
@@ -16,11 +16,14 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
     { id: 'transactions', label: 'Транзакции', icon: 'card', roleRequired: null },
     { id: 'statistics', label: 'Статистика', icon: 'stats-chart', roleRequired: null },
     { id: 'devices', label: 'Девайсы', icon: 'phone-portrait', roleRequired: null },
+    { id: 'invoices', label: 'Накладные', icon: 'document-text', roleRequired: 2 },
   ];
 
   const menuItems = allMenuItems.filter(item => {
     if (item.roleRequired === null) return true;
-    return userData?.idrole === item.roleRequired;
+    if (item.roleRequired === 1) return userData?.idrole === 1;
+    if (item.roleRequired === 2) return userData?.idrole === 2;
+    return false;
   });
 
   const handleLogout = async () => {
@@ -56,27 +59,27 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
           <View style={styles.mobileMenu}>
             <View style={styles.mobileMenuContent}>
               {menuItems.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={[
-                  styles.menuItem,
-                  activeSection === item.id && { ...styles.menuItemActive, backgroundColor: theme.background }
-                ]}
-                onPress={() => handleMenuItemClick(item.id)}
-                activeOpacity={0.7}
-              >
-                <Ionicons 
-                  name={item.icon} 
-                  size={20} 
-                  color={activeSection === item.id ? theme.primary : '#757575'} 
-                />
-                <Text style={[
-                  styles.menuText,
-                  activeSection === item.id && { ...styles.menuTextActive, color: theme.primary }
-                ]}>
-                  {item.label}
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  key={item.id}
+                  style={[
+                    styles.menuItem,
+                  activeSection === item.id && { ...styles.menuItemActive, backgroundColor: backgroundColor }
+                  ]}
+                  onPress={() => handleMenuItemClick(item.id)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons 
+                    name={item.icon} 
+                    size={20} 
+                  color={activeSection === item.id ? primaryColor : '#757575'} 
+                  />
+                  <Text style={[
+                    styles.menuText,
+                  activeSection === item.id && { ...styles.menuTextActive, color: primaryColor }
+                  ]}>
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
               ))}
               
               <TouchableOpacity
@@ -104,7 +107,7 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={[styles.logo, { backgroundColor: theme.primary }]}>
+        <View style={[styles.logo, { backgroundColor: primaryColor }]}>
           <Text style={styles.logoText}>G</Text>
         </View>
         <Text style={styles.appName}>Go Market</Text>
@@ -116,7 +119,7 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
             key={item.id}
             style={[
               styles.menuItem,
-              activeSection === item.id && { ...styles.menuItemActive, backgroundColor: theme.background }
+              activeSection === item.id && { ...styles.menuItemActive, backgroundColor: backgroundColor }
             ]}
             onPress={() => onSelectSection(item.id)}
             activeOpacity={0.7}
@@ -124,42 +127,16 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
             <Ionicons 
               name={item.icon} 
               size={20} 
-              color={activeSection === item.id ? theme.primary : '#757575'} 
+              color={activeSection === item.id ? primaryColor : '#757575'} 
             />
             <Text style={[
               styles.menuText,
-              activeSection === item.id && { ...styles.menuTextActive, color: theme.primary }
+              activeSection === item.id && { ...styles.menuTextActive, color: primaryColor }
             ]}>
               {item.label}
             </Text>
           </TouchableOpacity>
         ))}
-
-        <View style={styles.themeSwitcher}>
-          <Text style={styles.themeSwitcherLabel}>Цвет:</Text>
-          <View style={styles.themeButtons}>
-            <TouchableOpacity
-              style={[
-                styles.themeButton,
-                currentTheme === 'blue' && styles.themeButtonActive,
-                { borderColor: '#3bb9eb' }
-              ]}
-              onPress={() => switchTheme('blue')}
-            >
-              <View style={[styles.themeColor, { backgroundColor: '#3bb9eb' }]} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.themeButton,
-                currentTheme === 'orange' && styles.themeButtonActive,
-                { borderColor: '#FF6B35' }
-              ]}
-              onPress={() => switchTheme('orange')}
-            >
-              <View style={[styles.themeColor, { backgroundColor: '#FF6B35' }]} />
-            </TouchableOpacity>
-          </View>
-        </View>
       </View>
 
       <View style={styles.footer}>
@@ -276,40 +253,6 @@ const styles = StyleSheet.create({
   },
   menuTextActive: {
     fontWeight: '600',
-  },
-  themeSwitcher: {
-    marginTop: 16,
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-  },
-  themeSwitcherLabel: {
-    fontSize: 14,
-    color: '#757575',
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  themeButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  themeButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-  },
-  themeButtonActive: {
-    borderWidth: 3,
-  },
-  themeColor: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
   },
   footer: {
     padding: 16,

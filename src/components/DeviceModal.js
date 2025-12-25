@@ -146,7 +146,7 @@ const DeviceModal = ({ visible, onClose, onSave, device, mode, accountId }) => {
 
             {serverSuccess && (
               <View className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
-                <Text className="text-green-600 text-sm">{serverSuccess}</Text>
+                <Text className="text-orange-600 text-sm">{serverSuccess}</Text>
               </View>
             )}
 

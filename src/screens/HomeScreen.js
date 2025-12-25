@@ -4,9 +4,10 @@ import SideNav from '../components/SideNav';
 import UsersScreen from './UsersScreen';
 import ProfileScreen from './ProfileScreen';
 import DevicesScreen from './DevicesScreen';
+import InvoicesScreen from './InvoicesScreen';
 
 const HomeScreen = ({ onLogout, userData }) => {
-  const [activeSection, setActiveSection] = useState(userData?.idrole === 1 ? 'users' : 'profile');
+  const [activeSection, setActiveSection] = useState(userData?.idrole === 1 ? 'users' : userData?.idrole === 2 ? 'invoices' : 'profile');
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
 
@@ -32,6 +33,8 @@ const HomeScreen = ({ onLogout, userData }) => {
         );
       case 'devices':
         return <DevicesScreen userData={userData} />;
+      case 'invoices':
+        return <InvoicesScreen userData={userData} />;
       default:
         return null;
     }
