@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  gogomarket:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gogomarket-app
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    networks:
+      - gogomarket-network
+
+networks:
+  gogomarket-network:
+    driver: bridge
+
