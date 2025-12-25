@@ -55,10 +55,17 @@ const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
     const quantity = numericValue === '' ? 0 : parseInt(numericValue);
     
     const product = availableProducts.find((p) => (p.invoice_product_id || p.id) === productId);
-    if (product && quantity > product.available_quantity + (product.assigned_quantity || 0)) {
+    // available_quantity теперь это остаток на складе после всех распределений
+    // assigned_quantity - уже назначено на это устройство
+    // Максимум можно назначить: available_quantity + assigned_quantity (если увеличиваем)
+    // Или можно уменьшить до 0 (товар вернется на склад)
+    const currentAssigned = product.assigned_quantity || 0;
+    const maxAvailable = product.available_quantity + currentAssigned;
+    
+    if (product && quantity > maxAvailable) {
       Alert.alert(
         'Ошибка',
-        `Недостаточно товара! Доступно: ${product.available_quantity + (product.assigned_quantity || 0)} шт`
+        `Недостаточно товара на складе! Доступно: ${maxAvailable} шт (остаток на складе: ${product.available_quantity} шт + уже назначено на это устройство: ${currentAssigned} шт)`
       );
       return;
     }
@@ -73,7 +80,10 @@ const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
     for (const product of availableProducts) {
       const productId = product.invoice_product_id || product.id;
       const quantity = productQuantities[productId] || 0;
-      const maxAvailable = product.available_quantity + (product.assigned_quantity || 0);
+      const currentAssigned = product.assigned_quantity || 0;
+      // available_quantity - остаток на складе после всех распределений
+      // Максимум можно назначить: available_quantity + currentAssigned
+      const maxAvailable = product.available_quantity + currentAssigned;
       
       if (quantity < 0) {
         Alert.alert('Ошибка', `Количество не может быть отрицательным для товара "${product.name_ru}"`);
@@ -83,7 +93,7 @@ const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
       if (quantity > maxAvailable) {
         Alert.alert(
           'Ошибка',
-          `Недостаточно товара "${product.name_ru}"! Доступно: ${maxAvailable} шт`
+          `Недостаточно товара на складе "${product.name_ru}"! Доступно: ${maxAvailable} шт (остаток на складе: ${product.available_quantity} шт)`
         );
         return false;
       }
@@ -182,7 +192,9 @@ const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
                     {availableProducts.map((product) => {
                       const productId = product.invoice_product_id || product.id;
                       const quantity = productQuantities[productId] || 0;
-                      const maxAvailable = product.available_quantity + (product.assigned_quantity || 0);
+                      const currentAssigned = product.assigned_quantity || 0;
+                      // available_quantity - остаток на складе после всех распределений
+                      const maxAvailable = product.available_quantity + currentAssigned;
                       const isOverLimit = quantity > maxAvailable;
 
                       return (
@@ -216,9 +228,9 @@ const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
                               )}
                               <View className="flex-row gap-4 mt-2">
                                 <View>
-                                  <Text className="text-xs text-gray-500">На складе</Text>
-                                  <Text className="text-sm font-semibold text-gray-900">
-                                    {product.total_quantity} шт
+                                  <Text className="text-xs text-gray-500">Остаток на накладной</Text>
+                                  <Text className="text-sm font-semibold text-orange-600">
+                                    {product.available_quantity} шт
                                   </Text>
                                 </View>
                                 <View>
@@ -228,13 +240,7 @@ const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
                                   </Text>
                                 </View>
                                 <View>
-                                  <Text className="text-xs text-gray-500">Доступно</Text>
-                                  <Text className="text-sm font-semibold text-orange-600">
-                                    {product.available_quantity} шт
-                                  </Text>
-                                </View>
-                                <View>
-                                  <Text className="text-xs text-gray-500">Остаток</Text>
+                                  <Text className="text-xs text-gray-500">Остаток на устройстве</Text>
                                   <Text className="text-sm font-semibold text-blue-600">
                                     {product.remaining_quantity !== undefined ? product.remaining_quantity : (product.assigned_quantity || 0)} шт
                                   </Text>

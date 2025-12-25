@@ -25,7 +25,6 @@ const InvoiceProductModal = ({ visible, onClose, onSave, product, mode }) => {
   const [categories, setCategories] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [originalQuantity, setOriginalQuantity] = useState(null);
 
   useEffect(() => {
     loadCategories();
@@ -33,19 +32,16 @@ const InvoiceProductModal = ({ visible, onClose, onSave, product, mode }) => {
 
   useEffect(() => {
     if (product && mode === 'edit') {
-      const originalQty = product.quantity || 0;
-      setOriginalQuantity(originalQty);
       setFormData({
         name_ru: product.name_ru || '',
         name_kz: product.name_kz || '',
         category: product.category || '',
-        quantity: String(originalQty),
+        quantity: String(product.quantity || 0),
         purchase_price: String(product.purchase_price || ''),
         selling_price: String(product.selling_price || ''),
         image_url: product.image_url || '',
       });
     } else {
-      setOriginalQuantity(null);
       resetForm();
     }
   }, [product, mode, visible]);
@@ -80,24 +76,12 @@ const InvoiceProductModal = ({ visible, onClose, onSave, product, mode }) => {
       const parts = numericValue.split('.');
       const cleanValue = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : numericValue;
       
-      if (field === 'quantity' && mode === 'edit' && originalQuantity !== null) {
-        const newQuantity = parseInt(cleanValue) || 0;
-        if (newQuantity < originalQuantity) {
-          setErrors(prev => ({ 
-            ...prev, 
-            quantity: `Количество нельзя уменьшать. Текущее: ${originalQuantity}, новое: ${newQuantity}` 
-          }));
-        } else {
-          setErrors(prev => ({ ...prev, quantity: '' }));
-        }
-      }
-      
       setFormData(prev => ({ ...prev, [field]: cleanValue }));
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
     
-    if (errors[field] && field !== 'quantity') {
+    if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
@@ -141,13 +125,6 @@ const InvoiceProductModal = ({ visible, onClose, onSave, product, mode }) => {
     }
     if (!formData.quantity || parseInt(formData.quantity) < 0) {
       newErrors.quantity = 'Укажите корректное количество';
-    }
-    
-    if (mode === 'edit' && originalQuantity !== null) {
-      const newQuantity = parseInt(formData.quantity) || 0;
-      if (newQuantity < originalQuantity) {
-        newErrors.quantity = `Количество нельзя уменьшать. Текущее: ${originalQuantity}, новое: ${newQuantity}`;
-      }
     }
 
     if (mode === 'create') {
@@ -253,9 +230,6 @@ const InvoiceProductModal = ({ visible, onClose, onSave, product, mode }) => {
               <View>
                 <Text className="text-sm font-medium mb-2">
                   Количество (шт) <Text className="text-red-500">*</Text>
-                  {mode === 'edit' && (
-                    <Text className="text-gray-500 text-xs ml-2">(можно только увеличивать)</Text>
-                  )}
                 </Text>
                 <TextInput
                   value={formData.quantity}
@@ -267,9 +241,9 @@ const InvoiceProductModal = ({ visible, onClose, onSave, product, mode }) => {
                 {errors.quantity && (
                   <Text className="text-red-500 text-xs mt-1">{errors.quantity}</Text>
                 )}
-                {mode === 'edit' && originalQuantity !== null && !errors.quantity && (
+                {mode === 'edit' && product && !errors.quantity && (
                   <Text className="text-gray-500 text-xs mt-1">
-                    Текущее количество: {originalQuantity} шт
+                    Текущее количество: {product.quantity || 0} шт
                   </Text>
                 )}
               </View>
