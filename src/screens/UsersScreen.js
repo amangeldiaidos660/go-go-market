@@ -337,7 +337,7 @@ const UsersScreen = ({ userData }) => {
                   <View className="flex-row border-b border-gray-200 py-3 px-4 min-w-[1082px]">
                     <Text className="w-[60px] text-sm text-gray-800 justify-center">{user.id}</Text>
                     <Text className="w-[150px] text-sm text-gray-800 font-medium justify-center">{user.name}</Text>
-                    <Text className="w-[120px] text-sm text-gray-600 justify-center">@{user.login}</Text>
+                    <Text className="w-[120px] text-sm text-gray-600 justify-center">{user.login}</Text>
                     <Text className="w-[200px] text-sm text-gray-600 justify-center">{user.email}</Text>
                     <View className="w-[120px] justify-center">
                       <View className="bg-primary px-2.5 py-1 rounded-xl self-start">
@@ -357,7 +357,7 @@ const UsersScreen = ({ userData }) => {
                               />
                             </TouchableOpacity>
                             <TouchableOpacity 
-                              className="p-1.5 bg-green-50 rounded"
+                              className="p-1.5 bg-orange-50 rounded"
                               onPress={() => handleOpenEditModal(user)}
                             >
                               <Ionicons name="pencil" size={18} color="#FF6B35" />

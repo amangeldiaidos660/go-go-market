@@ -363,7 +363,7 @@ const DevicesScreen = ({ userData }) => {
                                           <View className="w-32 flex-row justify-center gap-2">
                                             <TouchableOpacity
                                               onPress={() => handleOpenEditDeviceModal(device)}
-                                              className="bg-green-50 p-1.5 rounded"
+                                              className="bg-orange-50 p-1.5 rounded"
                                             >
                                               <Ionicons name="pencil" size={16} color="#22c55e" />
                                             </TouchableOpacity>
@@ -407,7 +407,7 @@ const DevicesScreen = ({ userData }) => {
                                                     <View className="w-32 flex-row justify-center gap-2">
                                                       <TouchableOpacity
                                                         onPress={() => handleOpenEditPriceModal(price, device.id)}
-                                                        className="bg-green-50 p-1.5 rounded"
+                                                        className="bg-orange-50 p-1.5 rounded"
                                                       >
                                                         <Ionicons name="pencil" size={16} color="#22c55e" />
                                                       </TouchableOpacity>

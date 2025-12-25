@@ -54,7 +54,7 @@ const SearchBar = ({
           </TouchableOpacity>
           {showAddButton && (
             <TouchableOpacity 
-              className="flex-1 bg-green-500 py-2.5 rounded-lg items-center justify-center"
+              className="flex-1 bg-primary py-2.5 rounded-lg items-center justify-center"
               onPress={onAdd}
             >
               <Text className="text-white text-sm font-semibold">{addButtonText}</Text>
