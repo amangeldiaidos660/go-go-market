@@ -4,7 +4,6 @@ import './global.css';
 import LoginForm from './src/components/LoginForm';
 import HomeScreen from './src/screens/HomeScreen';
 import { authApi, apiClient } from './src/api';
-import { ThemeProvider } from './src/context/ThemeContext';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -51,13 +50,13 @@ export default function App() {
   }
 
   return (
-    <ThemeProvider>
+    <>
       {isAuthenticated ? (
         <HomeScreen onLogout={handleLogout} userData={userData} />
       ) : (
         <LoginForm onLoginSuccess={handleLoginSuccess} />
       )}
       <StatusBar style="auto" />
-    </ThemeProvider>
+    </>
   );
 }

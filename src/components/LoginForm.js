@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { authApi } from '../api';
-import { useTheme } from '../context/ThemeContext';
 
 const LoginForm = ({ onLoginSuccess }) => {
-  const { theme } = useTheme();
   const [formData, setFormData] = useState({
     login: '',
     password: '',
@@ -90,7 +88,7 @@ const LoginForm = ({ onLoginSuccess }) => {
       >
         <View style={styles.innerContainer}>
           <View style={styles.headerContainer}>
-            <View style={[styles.logo, { backgroundColor: theme.primary }]}>
+            <View style={styles.logo}>
               <Text style={styles.logoText}>G</Text>
             </View>
             <Text style={styles.title}>Go Market</Text>
@@ -155,12 +153,12 @@ const LoginForm = ({ onLoginSuccess }) => {
 
               <View style={styles.forgotPasswordContainer}>
                 <TouchableOpacity disabled={loading}>
-                  <Text style={[styles.forgotPasswordText, { color: theme.primary }]}>Забыли пароль?</Text>
+                  <Text style={styles.forgotPasswordText}>Забыли пароль?</Text>
                 </TouchableOpacity>
               </View>
 
               <TouchableOpacity
-                style={[styles.button, { backgroundColor: theme.primary, shadowColor: theme.primary }, loading && styles.buttonDisabled]}
+                style={[styles.button, loading && styles.buttonDisabled]}
                 onPress={handleSubmit}
                 disabled={loading}
                 activeOpacity={0.8}
@@ -204,6 +202,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 80,
     height: 80,
+    backgroundColor: '#FF6B35',
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
@@ -303,14 +302,17 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   forgotPasswordText: {
+    color: '#FF6B35',
     fontSize: 14,
   },
   button: {
+    backgroundColor: '#FF6B35',
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#FF6B35',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -345,6 +347,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   registerLink: {
+    color: '#FF6B35',
     fontSize: 14,
     fontWeight: '500',
   },
