@@ -58,7 +58,7 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
             <Ionicons name={isMobileMenuOpen ? "close" : "menu"} size={28} color="#212121" />
           </TouchableOpacity>
           <Image 
-            source={require('../assets/images/orange.png')} 
+            source={require('../../assets/images/orange.png')} 
             style={styles.mobileLogo}
             resizeMode="contain"
           />
@@ -117,7 +117,7 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Image 
-          source={require('../assets/images/orange.png')} 
+          source={require('../../assets/images/orange.png')} 
           style={styles.logoImage}
           resizeMode="contain"
         />

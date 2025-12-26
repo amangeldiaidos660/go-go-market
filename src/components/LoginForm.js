@@ -91,7 +91,7 @@ const LoginForm = ({ onLoginSuccess }) => {
         <View style={styles.innerContainer}>
           <View style={styles.headerContainer}>
             <Image 
-              source={require('../assets/images/orange.png')} 
+              source={require('../../assets/images/orange.png')} 
               style={styles.logoImage}
               resizeMode="contain"
             />
