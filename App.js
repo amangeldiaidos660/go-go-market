@@ -11,7 +11,19 @@ export default function App() {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const handleSessionExpired = () => {
+    setIsAuthenticated(false);
+    setUserData(null);
+    localStorage.removeItem('sessionId');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('activeSection');
+  };
+
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.handleSessionExpired = handleSessionExpired;
+    }
+
     const savedSessionId = localStorage.getItem('sessionId');
     const savedUserData = localStorage.getItem('userData');
     
@@ -22,6 +34,12 @@ export default function App() {
     }
     
     setLoading(false);
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete window.handleSessionExpired;
+      }
+    };
   }, []);
 
   const handleLoginSuccess = (user) => {

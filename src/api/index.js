@@ -5,5 +5,6 @@ export { devicesApi } from './devices';
 export { pricesApi } from './prices';
 export { invoicesApi } from './invoices';
 export { categoriesApi } from './categories';
+export { ordersApi } from './orders';
 export { API_CONFIG, API_ENDPOINTS, HTTP_STATUS } from './config';
 export { default as apiClient } from './client';

@@ -20,6 +20,11 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
   ];
 
   const menuItems = allMenuItems.filter(item => {
+    // Скрыть транзакции и статистику для админа (роль 1)
+    if (userData?.idrole === 1 && (item.id === 'transactions' || item.id === 'statistics')) {
+      return false;
+    }
+    
     if (item.roleRequired === null) return true;
     if (item.roleRequired === 1) return userData?.idrole === 1;
     if (item.roleRequired === 2) return userData?.idrole === 2;

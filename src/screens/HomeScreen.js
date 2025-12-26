@@ -1,15 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, useWindowDimensions, ScrollView } from 'react-native';
 import SideNav from '../components/SideNav';
 import UsersScreen from './UsersScreen';
 import ProfileScreen from './ProfileScreen';
 import DevicesScreen from './DevicesScreen';
 import InvoicesScreen from './InvoicesScreen';
+import StatisticsScreen from './StatisticsScreen';
+import TransactionsScreen from './TransactionsScreen';
 
 const HomeScreen = ({ onLogout, userData }) => {
-  const [activeSection, setActiveSection] = useState(userData?.idrole === 1 ? 'users' : userData?.idrole === 2 ? 'invoices' : 'profile');
+  const getDefaultSection = () => {
+    const saved = localStorage.getItem('activeSection');
+    if (saved) {
+      return saved;
+    }
+    return userData?.idrole === 1 ? 'users' : userData?.idrole === 2 ? 'invoices' : 'profile';
+  };
+
+  const [activeSection, setActiveSection] = useState(getDefaultSection);
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
+
+  useEffect(() => {
+    localStorage.setItem('activeSection', activeSection);
+  }, [activeSection]);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -18,19 +32,9 @@ const HomeScreen = ({ onLogout, userData }) => {
       case 'profile':
         return <ProfileScreen userData={userData} />;
       case 'transactions':
-        return (
-          <View style={styles.content}>
-            <Text style={styles.title}>Транзакции</Text>
-            <Text style={styles.subtitle}>История транзакций будет здесь</Text>
-          </View>
-        );
+        return <TransactionsScreen userData={userData} />;
       case 'statistics':
-        return (
-          <View style={styles.content}>
-            <Text style={styles.title}>Статистика</Text>
-            <Text style={styles.subtitle}>Графики и статистика будут здесь</Text>
-          </View>
-        );
+        return <StatisticsScreen userData={userData} />;
       case 'devices':
         return <DevicesScreen userData={userData} />;
       case 'invoices':

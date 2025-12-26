@@ -12,9 +12,13 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import pricesApi from '../api/prices';
+import { invoicesApi } from '../api';
 
 const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
   const [availableProducts, setAvailableProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [invoices, setInvoices] = useState([]);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
   const [productQuantities, setProductQuantities] = useState({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -22,17 +26,53 @@ const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
 
   useEffect(() => {
     if (visible && deviceId) {
+      loadInvoices();
       loadAvailableProducts();
       setProductQuantities({});
+      setSelectedInvoiceId(null);
       setError('');
     }
   }, [visible, deviceId]);
+
+  useEffect(() => {
+    if (selectedInvoiceId) {
+      const filtered = allProducts.filter(p => p.invoice_id === selectedInvoiceId);
+      setAvailableProducts(filtered);
+      const initialQuantities = {};
+      filtered.forEach((product) => {
+        const productId = product.invoice_product_id || product.id;
+        initialQuantities[productId] = product.assigned_quantity || product.quantity || 0;
+      });
+      setProductQuantities(initialQuantities);
+    } else {
+      setAvailableProducts(allProducts);
+      const initialQuantities = {};
+      allProducts.forEach((product) => {
+        const productId = product.invoice_product_id || product.id;
+        initialQuantities[productId] = product.assigned_quantity || product.quantity || 0;
+      });
+      setProductQuantities(initialQuantities);
+    }
+  }, [selectedInvoiceId, allProducts]);
+
+  const loadInvoices = async () => {
+    try {
+      const response = await invoicesApi.getList({ limit: 1000 });
+      if (response.success) {
+        const activeInvoices = (response.data?.rows || []).filter(inv => (inv.products_count || 0) > 0);
+        setInvoices(activeInvoices);
+      }
+    } catch (err) {
+      console.error('Ошибка загрузки накладных:', err);
+    }
+  };
 
   const loadAvailableProducts = async () => {
     setLoading(true);
     try {
       const response = await pricesApi.getAvailableProducts(deviceId);
       if (response.success) {
+        setAllProducts(response.data || []);
         setAvailableProducts(response.data || []);
         const initialQuantities = {};
         (response.data || []).forEach((product) => {
@@ -55,17 +95,12 @@ const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
     const quantity = numericValue === '' ? 0 : parseInt(numericValue);
     
     const product = availableProducts.find((p) => (p.invoice_product_id || p.id) === productId);
-    // available_quantity теперь это остаток на складе после всех распределений
-    // assigned_quantity - уже назначено на это устройство
-    // Максимум можно назначить: available_quantity + assigned_quantity (если увеличиваем)
-    // Или можно уменьшить до 0 (товар вернется на склад)
-    const currentAssigned = product.assigned_quantity || 0;
-    const maxAvailable = product.available_quantity + currentAssigned;
+    const maxAvailable = product.available_quantity || 0;
     
     if (product && quantity > maxAvailable) {
       Alert.alert(
         'Ошибка',
-        `Недостаточно товара на складе! Доступно: ${maxAvailable} шт (остаток на складе: ${product.available_quantity} шт + уже назначено на это устройство: ${currentAssigned} шт)`
+        `Недостаточно товара на накладной! Остаток: ${maxAvailable} шт`
       );
       return;
     }
@@ -80,10 +115,7 @@ const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
     for (const product of availableProducts) {
       const productId = product.invoice_product_id || product.id;
       const quantity = productQuantities[productId] || 0;
-      const currentAssigned = product.assigned_quantity || 0;
-      // available_quantity - остаток на складе после всех распределений
-      // Максимум можно назначить: available_quantity + currentAssigned
-      const maxAvailable = product.available_quantity + currentAssigned;
+      const maxAvailable = product.available_quantity || 0;
       
       if (quantity < 0) {
         Alert.alert('Ошибка', `Количество не может быть отрицательным для товара "${product.name_ru}"`);
@@ -93,7 +125,7 @@ const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
       if (quantity > maxAvailable) {
         Alert.alert(
           'Ошибка',
-          `Недостаточно товара на складе "${product.name_ru}"! Доступно: ${maxAvailable} шт (остаток на складе: ${product.available_quantity} шт)`
+          `Недостаточно товара на накладной "${product.name_ru}"! Остаток: ${maxAvailable} шт`
         );
         return false;
       }
@@ -176,6 +208,25 @@ const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
             </View>
           ) : (
             <>
+              <View className="px-4 pt-4 pb-2 border-b border-gray-200">
+                <Text className="text-sm font-medium mb-2 text-gray-700">
+                  Выберите накладную
+                </Text>
+                <View className="border border-gray-300 rounded-lg">
+                  <select
+                    value={selectedInvoiceId || ''}
+                    onChange={(e) => setSelectedInvoiceId(e.target.value ? parseInt(e.target.value) : null)}
+                    className="w-full px-3 py-2 rounded-lg outline-none bg-white"
+                  >
+                    <option value="">Все накладные</option>
+                    {invoices.map((invoice) => (
+                      <option key={invoice.id} value={invoice.id}>
+                        {invoice.name} {invoice.description ? `- ${invoice.description}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </View>
+              </View>
               <ScrollView className="p-4">
                 {availableProducts.length === 0 ? (
                   <View className="p-8 items-center">
@@ -192,9 +243,7 @@ const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
                     {availableProducts.map((product) => {
                       const productId = product.invoice_product_id || product.id;
                       const quantity = productQuantities[productId] || 0;
-                      const currentAssigned = product.assigned_quantity || 0;
-                      // available_quantity - остаток на складе после всех распределений
-                      const maxAvailable = product.available_quantity + currentAssigned;
+                      const maxAvailable = product.available_quantity || 0;
                       const isOverLimit = quantity > maxAvailable;
 
                       return (
@@ -300,9 +349,9 @@ const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
                                     const newQuantity = Math.min(maxAvailable, quantity + 1);
                                     handleQuantityChange(productId, newQuantity.toString());
                                   }}
-                                  disabled={quantity >= maxAvailable}
+                                  disabled={quantity >= maxAvailable || maxAvailable === 0}
                                   className={`w-10 h-10 rounded-lg items-center justify-center border-2 ${
-                                    quantity >= maxAvailable
+                                    quantity >= maxAvailable || maxAvailable === 0
                                       ? 'bg-gray-100 border-gray-200'
                                       : 'bg-orange-50 border-orange-300 active:bg-orange-100'
                                   }`}
@@ -317,7 +366,7 @@ const DeviceProductsModal = ({ visible, onClose, onSave, deviceId }) => {
                                   <Ionicons 
                                     name="add" 
                                     size={20} 
-                                    color={quantity >= maxAvailable ? "#9ca3af" : "#FF6B35"} 
+                                    color={quantity >= maxAvailable || maxAvailable === 0 ? "#9ca3af" : "#FF6B35"} 
                                   />
                                 </TouchableOpacity>
                               </View>

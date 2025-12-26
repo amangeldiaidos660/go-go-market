@@ -33,6 +33,8 @@ export const API_ENDPOINTS = {
   INVOICE_PRODUCTS_CREATE: '/go/invoices/products',
   INVOICE_PRODUCTS_EDIT: '/go/invoices/products/edit',
   INVOICE_PRODUCTS_DELETE: '/go/invoices/products/delete',
+  INVOICES_STATISTICS: '/go/invoices/statistics',
+  ORDERS_BY_MACHID: '/go/orders',
   UPLOAD_IMAGE: '/go/upload/image',
   WAREHOUSE_UPLOAD_IMAGE: '/go/warehouse/upload/image',
   CATEGORIES: '/go/categories',

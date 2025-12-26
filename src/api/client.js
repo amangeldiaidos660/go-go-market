@@ -80,6 +80,12 @@ class ApiClient {
       }
 
       if (error.status) {
+        if (error.status === 403 || error.status === 401) {
+          this.clearSessionId();
+          if (typeof window !== 'undefined' && window.handleSessionExpired) {
+            window.handleSessionExpired();
+          }
+        }
         throw {
           success: false,
           error: error.data?.detail || error.statusText,
@@ -182,6 +188,12 @@ class ApiClient {
       }
 
       if (error.status) {
+        if (error.status === 403 || error.status === 401) {
+          this.clearSessionId();
+          if (typeof window !== 'undefined' && window.handleSessionExpired) {
+            window.handleSessionExpired();
+          }
+        }
         throw {
           success: false,
           error: error.data?.error || error.data?.detail || error.statusText,

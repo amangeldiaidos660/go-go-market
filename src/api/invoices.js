@@ -285,5 +285,42 @@ export const invoicesApi = {
       };
     }
   },
+
+  getStatistics: async (params = {}) => {
+    try {
+      const sessionId = apiClient.getSessionId();
+      if (!sessionId) {
+        return { success: false, error: 'Сессия не найдена' };
+      }
+
+      const requestData = {
+        invoice_ids: params.invoice_ids || null,
+        date_from: params.date_from || null,
+        date_to: params.date_to || null,
+      };
+
+      const response = await apiClient.post(
+        `${API_ENDPOINTS.INVOICES_STATISTICS}/${sessionId}`,
+        requestData
+      );
+
+      if (response.success && response.data?.success) {
+        return {
+          success: true,
+          data: response.data.data,
+        };
+      }
+
+      return {
+        success: false,
+        error: response.data?.error || 'Ошибка получения статистики',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.error || 'Ошибка сети',
+      };
+    }
+  },
 };
 
