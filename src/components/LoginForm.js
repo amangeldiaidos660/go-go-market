@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { authApi } from '../api';
 import { useTheme } from '../context/ThemeContext';
@@ -90,10 +90,11 @@ const LoginForm = ({ onLoginSuccess }) => {
       >
         <View style={styles.innerContainer}>
           <View style={styles.headerContainer}>
-            <View style={[styles.logo, { backgroundColor: theme.primary }]}>
-              <Text style={styles.logoText}>G</Text>
-            </View>
-            <Text style={styles.title}>Go Market</Text>
+            <Image 
+              source={require('../assets/images/orange.png')} 
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
             <Text style={styles.subtitle}>Войдите в свой аккаунт</Text>
           </View>
 
@@ -201,23 +202,10 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     alignItems: 'center',
   },
-  logo: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
+  logoImage: {
+    width: 200,
+    height: 200,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  logoText: {
-    color: '#ffffff',
-    fontSize: 40,
-    fontWeight: 'bold',
   },
   title: {
     fontSize: 28,
@@ -230,6 +218,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#757575',
     textAlign: 'center',
+    marginTop: -50,
   },
   formContainer: {
     width: '100%',

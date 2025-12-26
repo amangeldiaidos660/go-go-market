@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, useWindowDimensions, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
@@ -57,7 +57,11 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
           >
             <Ionicons name={isMobileMenuOpen ? "close" : "menu"} size={28} color="#212121" />
           </TouchableOpacity>
-          <Text style={styles.mobileTitle}>Go Market</Text>
+          <Image 
+            source={require('../assets/images/orange.png')} 
+            style={styles.mobileLogo}
+            resizeMode="contain"
+          />
         </View>
 
         {isMobileMenuOpen && (
@@ -112,10 +116,11 @@ const SideNav = ({ activeSection, onSelectSection, onLogout, userData }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={[styles.logo, { backgroundColor: primaryColor }]}>
-          <Text style={styles.logoText}>G</Text>
-        </View>
-        <Text style={styles.appName}>Go Market</Text>
+        <Image 
+          source={require('../assets/images/orange.png')} 
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
       </View>
 
       <View style={styles.menu}>
@@ -177,7 +182,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ffffff',
-    padding: 16,
+    
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
     position: 'relative',
@@ -187,10 +192,9 @@ const styles = StyleSheet.create({
     padding: 8,
     marginRight: 12,
   },
-  mobileTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#212121',
+  mobileLogo: {
+    width: 200,
+    height: 200,
   },
   mobileMenu: {
     position: 'absolute',
@@ -207,33 +211,18 @@ const styles = StyleSheet.create({
     maxHeight: '80%',
   },
   header: {
-    padding: 24,
+    padding: 0,
+    margin: 0,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
     alignItems: 'center',
-  },
-  logo: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
-  logoText: {
-    color: '#ffffff',
-    fontSize: 32,
-    fontWeight: 'bold',
-  },
-  appName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#212121',
+  logoImage: {
+    width: 200,
+    height: 200,
+    margin: 0,
+    padding: 0,
   },
   menu: {
     flex: 1,
