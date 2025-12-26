@@ -28,7 +28,7 @@
       "package": "com.gomarket.app"
     },
     "web": {
-      "favicon": "./src/assets/images/Icon.png",
+      "favicon": "./assets/favicon.png",
       "bundler": "metro"
     }
   }
